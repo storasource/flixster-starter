@@ -1,8 +1,69 @@
+.movie-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 30px 30px 10px;
+}
+
+.search-form {
+  display: flex;
+  gap: 10px;
+}
+
+.search-form input {
+  min-width: 280px;
+  padding: 12px 14px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.movie-controls button,
+.load-more-button {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 18px;
+}
+
+.movie-list-title {
+  margin: 20px 0 0;
+  text-align: center;
+}
+
 .movie-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 24px;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+.status-message {
+  text-align: center;
+  padding: 20px;
+}
+
+.load-more-button {
+  display: block;
+  margin: 0 auto 40px;
+}
+
+@media (max-width: 600px) {
+  .search-form {
+    width: 100%;
+    flex-direction: column;
   }
+
+  .search-form input {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .movie-controls button {
+    width: 100%;
+  }
+}

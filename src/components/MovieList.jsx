@@ -1,9 +1,12 @@
-import "./MovieList.css"
 import { useEffect, useState } from "react"
 import MovieCard from "./MovieCard"
+import "./MovieList.css"
 
 function MovieList() {
   const [movies, setMovies] = useState([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [submittedQuery, setSubmittedQuery] = useState("")
+  const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -15,16 +18,28 @@ function MovieList() {
         setLoading(true)
         setError("")
 
-        const response = await fetch(
-          `https://api.themoviedb.org/3/movie/now_playing?api_key=${apiKey}&page=1`
-        )
+        const endpoint = submittedQuery
+          ? `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(
+              submittedQuery
+            )}&page=${page}`
+          : `https://api.themoviedb.org/3/movie/now_playing?api_key=${apiKey}&page=${page}`
+
+        const response = await fetch(endpoint)
 
         if (!response.ok) {
           throw new Error("Could not load movies")
         }
 
         const data = await response.json()
-        setMovies(data.results)
+
+        if (page === 1) {
+          setMovies(data.results)
+        } else {
+          setMovies((previousMovies) => [
+            ...previousMovies,
+            ...data.results,
+          ])
+        }
       } catch (error) {
         setError(error.message)
       } finally {
@@ -33,29 +48,80 @@ function MovieList() {
     }
 
     fetchMovies()
-  }, [apiKey])
+  }, [apiKey, submittedQuery, page])
+
+  function handleSearch(event) {
+    event.preventDefault()
+    setSubmittedQuery(searchQuery.trim())
+    setPage(1)
+  }
+
+  function handleShowNowPlaying() {
+    setSearchQuery("")
+    setSubmittedQuery("")
+    setPage(1)
+  }
+
+  function handleLoadMore() {
+    setPage((previousPage) => previousPage + 1)
+  }
 
   function handleMovieSelect(movieId) {
     console.log("Selected movie:", movieId)
   }
 
-  if (loading) {
-    return <p>Loading movies...</p>
-  }
-
-  if (error) {
-    return <p>{error}</p>
-  }
-
   return (
-    <section className="movie-list">
-      {movies.map((movie) => (
-        <MovieCard
-          key={movie.id}
-          movie={movie}
-          onMovieSelect={handleMovieSelect}
-        />
-      ))}
+    <section>
+      <div className="movie-controls">
+        <form className="search-form" onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="Search for a movie"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+          />
+
+          <button type="submit">Search</button>
+        </form>
+
+        <button type="button" onClick={handleShowNowPlaying}>
+          Now Playing
+        </button>
+      </div>
+
+      <h2 className="movie-list-title">
+        {submittedQuery
+          ? `Search results for "${submittedQuery}"`
+          : "Now Playing"}
+      </h2>
+
+      {error && <p className="status-message">{error}</p>}
+
+      {!loading && !error && movies.length === 0 && (
+        <p className="status-message">No movies found.</p>
+      )}
+
+      <div className="movie-list">
+        {movies.map((movie) => (
+          <MovieCard
+            key={movie.id}
+            movie={movie}
+            onMovieSelect={handleMovieSelect}
+          />
+        ))}
+      </div>
+
+      {loading && <p className="status-message">Loading movies...</p>}
+
+      {!loading && !error && movies.length > 0 && (
+        <button
+          className="load-more-button"
+          type="button"
+          onClick={handleLoadMore}
+        >
+          Load More
+        </button>
+      )}
     </section>
   )
 }
