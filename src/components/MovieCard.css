@@ -1,0 +1,38 @@
+.movie-card {
+    overflow: hidden;
+    border: none;
+    border-radius: 14px;
+    background-color: #1c1c24;
+    color: white;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .movie-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45);
+  }
+  
+  .movie-poster {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+  }
+  
+  .movie-card-info {
+    padding: 16px;
+  }
+  
+  .movie-card-info h2 {
+    margin: 0 0 10px;
+    font-size: 19px;
+  }
+  
+  .movie-card-info p {
+    margin: 0;
+    color: #d2d2da;
+  }
