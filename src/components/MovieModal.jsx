@@ -7,7 +7,13 @@ function MovieModal({ movieId, onClose }) {
   const [error, setError] = useState("")
 
   const apiKey = import.meta.env.VITE_API_KEY
-
+  useEffect(() => {
+    document.body.style.overflow = "hidden"
+  
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [])
   useEffect(() => {
     async function fetchMovieDetails() {
       try {

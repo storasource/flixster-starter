@@ -1,7 +1,23 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
+  min-width: 320px;
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  background-color: #11131a;
+  color: white;
+}
+
+button,
+input,
+select {
+  font: inherit;
 }
 
 button {
@@ -10,10 +26,26 @@ button {
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
-  transition: background-color 0.3s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 button:hover {
-  background-color: #777;
-  color: white;
+  background-color: #555b68;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #f7c948;
+  outline-offset: 3px;
+}
+
+img {
+  max-width: 100%;
 }
