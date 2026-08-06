@@ -11,6 +11,7 @@ function MovieList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [selectedMovieId, setSelectedMovieId] = useState(null)
+  const [sortOption, setSortOption] = useState("default")
 
   const apiKey = import.meta.env.VITE_API_KEY
 
@@ -52,16 +53,37 @@ function MovieList() {
     fetchMovies()
   }, [apiKey, submittedQuery, page])
 
+  const sortedMovies = [...movies].sort((movieA, movieB) => {
+    if (sortOption === "title") {
+      return movieA.title.localeCompare(movieB.title)
+    }
+
+    if (sortOption === "rating") {
+      return movieB.vote_average - movieA.vote_average
+    }
+
+    if (sortOption === "release-date") {
+      const dateA = movieA.release_date || ""
+      const dateB = movieB.release_date || ""
+
+      return dateB.localeCompare(dateA)
+    }
+
+    return 0
+  })
+
   function handleSearch(event) {
     event.preventDefault()
     setSubmittedQuery(searchQuery.trim())
     setPage(1)
+    setSortOption("default")
   }
 
   function handleShowNowPlaying() {
     setSearchQuery("")
     setSubmittedQuery("")
     setPage(1)
+    setSortOption("default")
   }
 
   function handleLoadMore() {
@@ -93,6 +115,20 @@ function MovieList() {
         <button type="button" onClick={handleShowNowPlaying}>
           Now Playing
         </button>
+
+        <label className="sort-control">
+          Sort by
+
+          <select
+            value={sortOption}
+            onChange={(event) => setSortOption(event.target.value)}
+          >
+            <option value="default">Default</option>
+            <option value="title">Title A-Z</option>
+            <option value="rating">Highest Rating</option>
+            <option value="release-date">Newest Release</option>
+          </select>
+        </label>
       </div>
 
       <h2 className="movie-list-title">
@@ -108,7 +144,7 @@ function MovieList() {
       )}
 
       <div className="movie-list">
-        {movies.map((movie) => (
+        {sortedMovies.map((movie) => (
           <MovieCard
             key={movie.id}
             movie={movie}
