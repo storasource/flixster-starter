@@ -1,16 +1,18 @@
 import "./App.css"
+import Header from "./components/Header"
 import MovieList from "./components/MovieList"
+import Footer from "./components/Footer"
 
-const App = () => {
+function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>Flixster</h1>
-      </header>
+      <Header />
 
       <main>
         <MovieList />
       </main>
+
+      <Footer />
     </div>
   )
 }

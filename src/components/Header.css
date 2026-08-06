@@ -1,0 +1,16 @@
+.site-header {
+    padding: 24px 30px;
+    background-color: #282c34;
+    color: white;
+    text-align: center;
+  }
+  
+  .site-header h1 {
+    margin: 0;
+    font-size: 36px;
+  }
+  
+  .site-header p {
+    margin: 8px 0 0;
+    color: #dddddd;
+  }

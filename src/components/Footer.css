@@ -1,0 +1,14 @@
+.site-footer {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding: 24px;
+    background-color: #282c34;
+    color: white;
+    text-align: center;
+  }
+  
+  .site-footer p {
+    margin: 0;
+  }
