@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import MovieCard from "./MovieCard"
-import "./MovieList.css"
 import MovieModal from "./MovieModal"
+import "./MovieList.css"
 
 function MovieList() {
   const [movies, setMovies] = useState([])
@@ -10,6 +10,7 @@ function MovieList() {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [selectedMovieId, setSelectedMovieId] = useState(null)
 
   const apiKey = import.meta.env.VITE_API_KEY
 
@@ -70,7 +71,7 @@ function MovieList() {
   function handleMovieSelect(movieId) {
     setSelectedMovieId(movieId)
   }
-  
+
   function handleCloseModal() {
     setSelectedMovieId(null)
   }
@@ -116,7 +117,9 @@ function MovieList() {
         ))}
       </div>
 
-      {loading && <p className="status-message">Loading movies...</p>}
+      {loading && (
+        <p className="status-message">Loading movies...</p>
+      )}
 
       {!loading && !error && movies.length > 0 && (
         <button
@@ -127,12 +130,13 @@ function MovieList() {
           Load More
         </button>
       )}
+
       {selectedMovieId && (
-  <MovieModal
-    movieId={selectedMovieId}
-    onClose={handleCloseModal}
-  />
-)}
+        <MovieModal
+          movieId={selectedMovieId}
+          onClose={handleCloseModal}
+        />
+      )}
     </section>
   )
 }
