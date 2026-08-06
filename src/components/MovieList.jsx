@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import MovieCard from "./MovieCard"
 import "./MovieList.css"
+import MovieModal from "./MovieModal"
 
 function MovieList() {
   const [movies, setMovies] = useState([])
@@ -67,7 +68,11 @@ function MovieList() {
   }
 
   function handleMovieSelect(movieId) {
-    console.log("Selected movie:", movieId)
+    setSelectedMovieId(movieId)
+  }
+  
+  function handleCloseModal() {
+    setSelectedMovieId(null)
   }
 
   return (
@@ -122,6 +127,12 @@ function MovieList() {
           Load More
         </button>
       )}
+      {selectedMovieId && (
+  <MovieModal
+    movieId={selectedMovieId}
+    onClose={handleCloseModal}
+  />
+)}
     </section>
   )
 }
