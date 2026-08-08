@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import MovieCard from "./MovieCard"
 import MovieModal from "./MovieModal"
+import Sidebar from "./Sidebar"
 import "./MovieList.css"
 
 function MovieList() {
@@ -12,8 +13,43 @@ function MovieList() {
   const [error, setError] = useState("")
   const [selectedMovieId, setSelectedMovieId] = useState(null)
   const [sortOption, setSortOption] = useState("default")
+  const [activeFilter, setActiveFilter] = useState("browse")
+
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("flixster-favorites")
+      ) || []
+    } catch {
+      return []
+    }
+  })
+
+  const [watchedMovies, setWatchedMovies] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("flixster-watched")
+      ) || []
+    } catch {
+      return []
+    }
+  })
 
   const apiKey = import.meta.env.VITE_API_KEY
+
+  useEffect(() => {
+    localStorage.setItem(
+      "flixster-favorites",
+      JSON.stringify(favorites)
+    )
+  }, [favorites])
+
+  useEffect(() => {
+    localStorage.setItem(
+      "flixster-watched",
+      JSON.stringify(watchedMovies)
+    )
+  }, [watchedMovies])
 
   useEffect(() => {
     async function fetchMovies() {
@@ -53,30 +89,13 @@ function MovieList() {
     fetchMovies()
   }, [apiKey, submittedQuery, page])
 
-  const sortedMovies = [...movies].sort((movieA, movieB) => {
-    if (sortOption === "title") {
-      return movieA.title.localeCompare(movieB.title)
-    }
-
-    if (sortOption === "rating") {
-      return movieB.vote_average - movieA.vote_average
-    }
-
-    if (sortOption === "release-date") {
-      const dateA = movieA.release_date || ""
-      const dateB = movieB.release_date || ""
-
-      return dateB.localeCompare(dateA)
-    }
-
-    return 0
-  })
-
   function handleSearch(event) {
     event.preventDefault()
+
     setSubmittedQuery(searchQuery.trim())
     setPage(1)
     setSortOption("default")
+    setActiveFilter("browse")
   }
 
   function handleShowNowPlaying() {
@@ -84,6 +103,16 @@ function MovieList() {
     setSubmittedQuery("")
     setPage(1)
     setSortOption("default")
+    setActiveFilter("browse")
+  }
+
+  function handleFilterChange(filter) {
+    if (filter === "browse") {
+      handleShowNowPlaying()
+      return
+    }
+
+    setActiveFilter(filter)
   }
 
   function handleLoadMore() {
@@ -98,82 +127,211 @@ function MovieList() {
     setSelectedMovieId(null)
   }
 
+  function handleToggleFavorite(movie) {
+    setFavorites((previousFavorites) => {
+      const exists = previousFavorites.some(
+        (favorite) => favorite.id === movie.id
+      )
+
+      if (exists) {
+        return previousFavorites.filter(
+          (favorite) => favorite.id !== movie.id
+        )
+      }
+
+      return [...previousFavorites, movie]
+    })
+  }
+
+  function handleToggleWatched(movie) {
+    setWatchedMovies((previousWatched) => {
+      const exists = previousWatched.some(
+        (watched) => watched.id === movie.id
+      )
+
+      if (exists) {
+        return previousWatched.filter(
+          (watched) => watched.id !== movie.id
+        )
+      }
+
+      return [...previousWatched, movie]
+    })
+  }
+
+  function isMovieFavorite(movieId) {
+    return favorites.some((movie) => movie.id === movieId)
+  }
+
+  function isMovieWatched(movieId) {
+    return watchedMovies.some((movie) => movie.id === movieId)
+  }
+
+  let displayedMovies = movies
+
+  if (activeFilter === "favorites") {
+    displayedMovies = favorites
+  }
+
+  if (activeFilter === "watched") {
+    displayedMovies = watchedMovies
+  }
+
+  const sortedMovies = [...displayedMovies].sort(
+    (movieA, movieB) => {
+      if (sortOption === "title") {
+        return movieA.title.localeCompare(movieB.title)
+      }
+
+      if (sortOption === "rating") {
+        return (
+          (movieB.vote_average || 0) -
+          (movieA.vote_average || 0)
+        )
+      }
+
+      if (sortOption === "release-date") {
+        return (movieB.release_date || "").localeCompare(
+          movieA.release_date || ""
+        )
+      }
+
+      return 0
+    }
+  )
+
+  let title = "Now Playing"
+
+  if (submittedQuery && activeFilter === "browse") {
+    title = `Search results for "${submittedQuery}"`
+  }
+
+  if (activeFilter === "favorites") {
+    title = "My Favorites"
+  }
+
+  if (activeFilter === "watched") {
+    title = "Watched Movies"
+  }
+
   return (
-    <section>
-      <div className="movie-controls">
-        <form className="search-form" onSubmit={handleSearch}>
-          <input
-            type="text"
-            placeholder="Search for a movie"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-          />
+    <div className="movie-page">
+      <Sidebar
+        activeFilter={activeFilter}
+        onChangeFilter={handleFilterChange}
+        favoriteCount={favorites.length}
+        watchedCount={watchedMovies.length}
+      />
 
-          <button type="submit">Search</button>
-        </form>
-
-        <button type="button" onClick={handleShowNowPlaying}>
-          Now Playing
-        </button>
-
-        <label className="sort-control">
-          Sort by
-
-          <select
-            value={sortOption}
-            onChange={(event) => setSortOption(event.target.value)}
+      <section className="movie-content">
+        <div className="movie-controls">
+          <form
+            className="search-form"
+            onSubmit={handleSearch}
           >
-            <option value="default">Default</option>
-            <option value="title">Title A-Z</option>
-            <option value="rating">Highest Rating</option>
-            <option value="release-date">Newest Release</option>
-          </select>
-        </label>
-      </div>
+            <input
+              type="text"
+              placeholder="Search for a movie"
+              value={searchQuery}
+              onChange={(event) =>
+                setSearchQuery(event.target.value)
+              }
+            />
 
-      <h2 className="movie-list-title">
-        {submittedQuery
-          ? `Search results for "${submittedQuery}"`
-          : "Now Playing"}
-      </h2>
+            <button type="submit">
+              Search
+            </button>
+          </form>
 
-      {error && <p className="status-message">{error}</p>}
+          <button
+            type="button"
+            onClick={handleShowNowPlaying}
+          >
+            Now Playing
+          </button>
 
-      {!loading && !error && movies.length === 0 && (
-        <p className="status-message">No movies found.</p>
-      )}
+          <label className="sort-control">
+            Sort by
 
-      <div className="movie-list">
-        {sortedMovies.map((movie) => (
-          <MovieCard
-            key={movie.id}
-            movie={movie}
-            onMovieSelect={handleMovieSelect}
+            <select
+              value={sortOption}
+              onChange={(event) =>
+                setSortOption(event.target.value)
+              }
+            >
+              <option value="default">Default</option>
+              <option value="title">Title A-Z</option>
+              <option value="rating">Highest Rating</option>
+              <option value="release-date">
+                Newest Release
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <h2 className="movie-list-title">
+          {title}
+        </h2>
+
+        {error && activeFilter === "browse" && (
+          <p className="status-message">
+            {error}
+          </p>
+        )}
+
+        {!loading &&
+          sortedMovies.length === 0 && (
+            <p className="status-message">
+              No movies here yet.
+            </p>
+          )}
+
+        <div className="movie-list">
+          {sortedMovies.map((movie) => (
+            <MovieCard
+              key={movie.id}
+              movie={movie}
+              onMovieSelect={handleMovieSelect}
+              isFavorite={isMovieFavorite(movie.id)}
+              isWatched={isMovieWatched(movie.id)}
+              onToggleFavorite={handleToggleFavorite}
+              onToggleWatched={handleToggleWatched}
+            />
+          ))}
+        </div>
+
+        {loading && activeFilter === "browse" && (
+          <p className="status-message">
+            Loading movies...
+          </p>
+        )}
+
+        {!loading &&
+          !error &&
+          activeFilter === "browse" &&
+          movies.length > 0 && (
+            <button
+              className="load-more-button"
+              type="button"
+              onClick={handleLoadMore}
+            >
+              Load More
+            </button>
+          )}
+
+        {selectedMovieId && (
+          <MovieModal
+            movieId={selectedMovieId}
+            onClose={handleCloseModal}
+            onSelectMovie={handleMovieSelect}
+            isFavorite={isMovieFavorite(selectedMovieId)}
+            isWatched={isMovieWatched(selectedMovieId)}
+            onToggleFavorite={handleToggleFavorite}
+            onToggleWatched={handleToggleWatched}
           />
-        ))}
-      </div>
-
-      {loading && (
-        <p className="status-message">Loading movies...</p>
-      )}
-
-      {!loading && !error && movies.length > 0 && (
-        <button
-          className="load-more-button"
-          type="button"
-          onClick={handleLoadMore}
-        >
-          Load More
-        </button>
-      )}
-
-      {selectedMovieId && (
-        <MovieModal
-          movieId={selectedMovieId}
-          onClose={handleCloseModal}
-        />
-      )}
-    </section>
+        )}
+      </section>
+    </div>
   )
 }
 

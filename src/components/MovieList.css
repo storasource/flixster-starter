@@ -1,3 +1,13 @@
+.movie-page {
+  display: flex;
+  min-height: 100%;
+}
+
+.movie-content {
+  flex: 1;
+  min-width: 0;
+}
+
 .movie-controls {
   display: flex;
   justify-content: center;
@@ -27,29 +37,6 @@
   padding: 12px 18px;
 }
 
-.movie-list-title {
-  margin: 20px 0 0;
-  text-align: center;
-}
-
-.movie-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 30px;
-}
-
-.status-message {
-  text-align: center;
-  padding: 20px;
-}
-
-.load-more-button {
-  display: block;
-  margin: 0 auto 40px;
-}
 .sort-control {
   display: flex;
   align-items: center;
@@ -64,36 +51,48 @@
   background-color: white;
   font-size: 16px;
 }
-@media (max-width: 600px) {
-  .search-form {
-    width: 100%;
-    flex-direction: column;
-    .sort-control {
-      width: 100%;
-      flex-direction: column;
-      align-items: stretch;
-    }
-    
-    .sort-control select {
-      width: 100%;
-    }
-  }
 
-  .search-form input {
-    min-width: 0;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .movie-controls button {
-    width: 100%;
-  }
+.movie-list-title {
+  margin: 24px 0 0;
+  text-align: center;
 }
+
+.movie-list {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(210px, 1fr)
+  );
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+.status-message {
+  text-align: center;
+  padding: 30px;
+}
+
+.load-more-button {
+  display: block;
+  margin: 0 auto 40px;
+}
+
 @media (max-width: 900px) {
   .movie-list {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(180px, 1fr)
+    );
     padding: 24px;
     gap: 20px;
+  }
+}
+
+@media (max-width: 800px) {
+  .movie-page {
+    flex-direction: column;
   }
 }
 
@@ -116,10 +115,19 @@
   .search-form input {
     min-width: 0;
     width: 100%;
-    box-sizing: border-box;
   }
 
   .movie-controls button {
+    width: 100%;
+  }
+
+  .sort-control {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sort-control select {
     width: 100%;
   }
 }
